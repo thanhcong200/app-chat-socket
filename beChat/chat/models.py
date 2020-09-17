@@ -4,25 +4,18 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-class Contact(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    friends = models.ManyToManyField('self', blank=True)
-    
-    def __str__(self):
-        return self.user.username
-
-
 class Message(models.Model):
-    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.contact
+        return f"Message from {self.user.username}"
 
 
 class Chat(models.Model):
-    participants = models.ManyToManyField(Contact, related_name='chats', blank=True)
+    name = models.CharField(max_length=500, null=True)
+    participants = models.ManyToManyField(User, related_name='chats', blank=True)
     messages = models.ManyToManyField(Message, blank=True)
 
     def __str__(self):
