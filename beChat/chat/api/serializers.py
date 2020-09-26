@@ -1,30 +1,25 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from chat.models import Chat, Message
+from rest_framework import status
+from chat.models import User
 
-User = get_user_model()
 
-class UserSerializer(serializers.ModelSerializer):
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        max_length=68, min_length=6, write_only=True)
+
     class Meta:
         model = User
-        fields = ('id', 'username')
-        read_only_fields = ('id',)
+        fields = ['id', 'username', 'email', 'password']
+
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
 
 
-class MessageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Message
-        fields = ('id', 'message', 'timestamp')
-        read_only_fields = ('id',)
-
-
-class ChatSerializer(serializers.ModelSerializer):
-    participants = UserSerializer(many=True)
-    messages = MessageSerializer(many=True)
+class LoginSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255, min_length=3)
+    password = serializers.CharField(
+        max_length=68, min_length=6, write_only=True)
 
     class Meta:
-        model = Chat
-        fields = ('id', 'name', 'participants', 'messages')
-        read_only_fields = ('id',)
-
-    
+        model = User
+        fields = ['email', 'password']
